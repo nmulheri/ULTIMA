@@ -10,6 +10,7 @@ struct TCB {
     int task_id;
     std::string task_name;
     State state;
+    TCB* next;
 };
 
 class Semaphore {

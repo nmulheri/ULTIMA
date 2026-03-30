@@ -1,65 +1,59 @@
+#include "Sched.h"
 #include "Sema.h"
 #include <iostream>
 
 using namespace std;
 
-string stateToString(State s) {
-    switch (s) {
-        case RUNNING: return "RUNNING";
-        case READY: return "READY";
-        case BLOCKED: return "BLOCKED";
-        case DEAD: return "DEAD";
-        default: return "UNKNOWN";
-    }
-}
-
-void printTaskStates(TCB& t1, TCB& t2, TCB& t3) {
-    cout << "\n--- Task States ---\n";
-    cout << t1.task_name << ": " << stateToString(t1.state) << endl;
-    cout << t2.task_name << ": " << stateToString(t2.state) << endl;
-    cout << t3.task_name << ": " << stateToString(t3.state) << endl;
-}
-
 int main() {
-    TCB t1 = {1, "Task1", READY};
-    TCB t2 = {2, "Task2", READY};
-    TCB t3 = {3, "Task3", READY};
-
+    Scheduler sched;
     Semaphore sem("Printer", 1);
 
-    cout << "Initial State:\n";
-    sem.dump();
-    printTaskStates(t1, t2, t3);
+    // task creation
+    int id1 = sched.create_task("Task1");
+    int id2 = sched.create_task("Task2");
+    int id3 = sched.create_task("Task3");
+    sched.dump(1);
 
-    cout << "\nTask1 tries down():\n";
-    sem.down(&t1);
-    sem.dump();
-    printTaskStates(t1, t2, t3);
+    // round-robin yield through all three
+    sched.yield();
+    sched.dump(0);
+    sched.yield();
+    sched.dump(0);
+    sched.yield(); // wraps back to Task1
+    sched.dump(0);
 
-    cout << "\nTask2 tries down():\n";
-    sem.down(&t2);
-    sem.dump();
-    printTaskStates(t1, t2, t3);
+    // semaphore contention Task1 acquires, Task2 and Task3 block
+    TCB* t1 = sched.find_task(id1);
+    TCB* t2 = sched.find_task(id2);
+    TCB* t3 = sched.find_task(id3);
 
-    cout << "\nTask3 tries down():\n";
-    sem.down(&t3);
+    sem.down(t1);
+    sem.down(t2);
+    sem.down(t3);
     sem.dump();
-    printTaskStates(t1, t2, t3);
+    sched.dump(1);
 
-    cout << "\nCalling up():\n";
+    // release to unblock in FIFO order
+    sem.up();
+    sem.up();
     sem.up();
     sem.dump();
-    printTaskStates(t1, t2, t3);
+    sched.dump(1);
 
-    cout << "\nCalling up():\n";
-    sem.up();
-    sem.dump();
-    printTaskStates(t1, t2, t3);
+    // scheduling resumes after unblock
+    sched.yield();
+    sched.yield();
+    sched.dump(0);
 
-    cout << "\nCalling up():\n";
-    sem.up();
-    sem.dump();
-    printTaskStates(t1, t2, t3);
+    // kill and garbage collect
+    sched.kill_task(id2);
+    sched.garbage_collect();
+    sched.dump(1);
+
+    sched.kill_task(id1);
+    sched.kill_task(id3);
+    sched.garbage_collect();
+    sched.dump(1);
 
     return 0;
 }
