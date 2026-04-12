@@ -1,25 +1,3 @@
-/*
-C435 Operating Systems
-ULTIMA 2.0 - Phase II: Message Passing (IPC)
-Person 1 Contribution
-
-Name: Manjot Singh
-Role: IPC Data Structures and Mailbox Setup
-
-Description:
-This file contains the person 1 part of the IPC phase.
-It includes:
-- Message_Type structure
-- Message structure
-- Mailbox structure
-- IPC constructor
-- Mailbox initialization for all active tasks
-- Helper functions for mailbox access and task validation
-- Basic setup test
-
-Notes:
-- The code in this section was written with the idea of creating one mailbox per task. This is an appropriate way to create mailboxes. There will need to be send/receive logic added to this code at a future date.
-*/
 
 #include <iostream>
 #include <queue>
