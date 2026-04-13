@@ -221,5 +221,21 @@ int main() {
         }
     }
 
+    cout << endl;
+cout << "========================================" << endl;
+cout << "Testing Invalid Mailbox Access" << endl;
+cout << "========================================" << endl;
+
+int invalid_mailbox_ids[] = {0, -1, 5, 10};
+
+for (int id : invalid_mailbox_ids) {
+    ipc::Mailbox* mailbox = messenger.get_mailbox(id);
+
+    if (mailbox == NULL) {
+        cout << "Correct: No mailbox for task " << id << endl;
+    } else {
+        cout << "Error: Found mailbox for invalid task " << id << endl;
+    }
+}
     return 0;
 }
