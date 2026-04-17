@@ -11,6 +11,9 @@ struct TCB {
     std::string task_name;
     State state;
     TCB* next;
+
+    // Phase 3 memory field
+    int memory_handle;
 };
 
 class Semaphore {

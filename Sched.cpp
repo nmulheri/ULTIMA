@@ -30,12 +30,12 @@ Scheduler::~Scheduler() {
 
 int Scheduler::create_task(const string& task_name) {
     TCB* task = new TCB;
-    task->task_id   = next_id++;
+    task->task_id = next_id++;
     task->task_name = task_name;
-    task->state     = READY;
-    task->next      = nullptr;
+    task->state = READY;
+    task->next = nullptr;
+    task->memory_handle = -1;
 
-    // first task becomes RUNNING
     if (!process_table) {
         task->state = RUNNING;
         running = task;
@@ -67,7 +67,6 @@ void Scheduler::kill_task(int task_id) {
 void Scheduler::yield() {
     if (!process_table) return;
 
-    // no running task scan from head for first READY
     if (!running) {
         TCB* cur = process_table;
         while (cur) {
@@ -85,7 +84,6 @@ void Scheduler::yield() {
 
     running->state = READY;
 
-    // round-robin to scan from next node, wrap to head
     TCB* start = running->next ? running->next : process_table;
     TCB* cur = start;
     bool wrapped = false;
@@ -106,7 +104,6 @@ void Scheduler::yield() {
         if (cur == start && wrapped) break;
     }
 
-    // no other READY task keep current
     running->state = RUNNING;
     cout << running->task_name << " continues RUNNING (no other READY tasks)" << endl;
 }
@@ -176,7 +173,7 @@ void Scheduler::dump(int level) {
     TCB* cur = process_table;
     while (cur) {
         cout << cur->task_name << "\t\t"
-             << cur->task_id   << "\t\t"
+             << cur->task_id << "\t\t"
              << stateToString(cur->state) << endl;
         cur = cur->next;
     }
@@ -195,10 +192,10 @@ void Scheduler::dump(int level) {
         }
         cout << "\nSummary: "
              << task_count() << " total | "
-             << run     << " running | "
-             << ready   << " ready | "
+             << run << " running | "
+             << ready << " ready | "
              << blocked << " blocked | "
-             << dead    << " dead" << endl;
+             << dead << " dead" << endl;
     }
 
     if (level >= 2) {
