@@ -29,6 +29,19 @@ int main() {
     cout << "Task2 handle: " << t2->memory_handle << endl;
     cout << "Task3 handle: " << t3->memory_handle << endl;
 
+    cout << "\n=== QUICK READ/WRITE TEST WHILE MEMORY IS STILL ALLOCATED ===" << endl;
+
+int htest = mmu.Mem_Alloc(99, 10);
+cout << "Test handle = " << htest << endl;
+
+int w1 = mmu.Mem_Write(99, htest, 'X');
+cout << "Write result = " << w1 << endl;
+
+char temp[2] = {0};
+int r1 = mmu.Mem_Read(99, htest, 0, 1, temp);
+cout << "Read result = " << r1 << endl;
+cout << "Read char = " << temp[0] << endl;
+
     mmu.List_Dump();
     mmu.Mem_Dump(0, 256);
 
@@ -75,6 +88,8 @@ int main() {
 
     mmu.List_Dump();
     mmu.Mem_Dump(0, 256);
+
+    cout << "\n\n=============================\n";
 
     return 0;
 }
